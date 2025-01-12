@@ -3,32 +3,40 @@ import os
 
 
 def main():
+	"""
+	Main function that controls the flow of the program.
+	Displays the splash screen, initializes blocks, and 
+	displays the main menu for user interaction.
+	"""
 	splash_screen()
-	blocks = initialize_blocks()
+	blocks = initialise_blocks()
 
 	while True:
 		clear_console()
-
 		display_menu()
 		choice = get_user_choice()
 
 		if choice == 1:
-			display_blocks(blocks)
+			display_blocks(blocks)  # Show all blocks
 			input("Press Enter to return to the menu...")
 		elif choice == 2:
-			search_block(blocks)
+			search_block(blocks)  # Search for a block
 		elif choice == 3:
-			add_block(blocks)
+			add_block(blocks)  # Add a new block
 		elif choice == 4:
-			delete_block(blocks)
+			delete_block(blocks)  # Delete an existing block
 		elif choice == 5:
-			sort_blocks(blocks)
+			sort_blocks(blocks)  # Sort blocks alphabetically
 		elif choice == 6:
-			print("Exiting BlockWorks. Goodbye!")
+			print("Exiting BlockWorks. Goodbye!")  # Exit the program
 			sys.exit()
 
 
 def splash_screen():
+	"""
+	Displays the splash screen when the program starts.
+	Shows a welcome message and some loading information.
+	"""
 	clear_console()
 	print("=" * 50)
 	print("\033[1;37;41m              Welcome to BlockWorks               \033[0m")
@@ -40,6 +48,10 @@ def splash_screen():
 
 
 def display_menu():
+	"""
+	Displays the main menu to the user, where they can choose 
+	what action to perform in the program.
+	"""
 	print("=" * 30)
 	print("\033[1;37;41m    BlockWorks Main Menu      \033[0m")
 	print("=" * 30)
@@ -55,6 +67,10 @@ def display_menu():
 
 
 def get_user_choice():
+	"""
+	Prompts the user to select a choice from the menu and 
+	validates the input to ensure it's a valid choice.
+	"""
 	while True:
 		try:
 			choice = int(input("Enter your choice: "))
@@ -67,24 +83,36 @@ def get_user_choice():
 
 
 def clear_console():
-	if os.name == 'nt':  # Windows
+	"""
+	Clears the console based on the operating system.
+	For Windows, uses 'cls'; for Linux/macOS, uses 'clear'.
+	"""
+	if os.name == 'nt':  # If on Windows
 		os.system('cls')
-	else:
-		os.system('clear')  # Linux
+	else:  # If on Linux or macOS
+		os.system('clear')
 
 
 def confirm_action(prompt="Are you sure? (yes/no): "):
+	"""
+	Asks the user for confirmation before performing an action.
+	Returns True for 'yes' and False for 'no', ensures valid input.
+	"""
 	while True:
 		user_input = input(prompt).strip().lower()
-		if user_input == "yes":
+		if user_input in ["yes", "y"]:
 			return True
-		elif user_input == "no":
+		elif user_input in ["no", "n"]:
 			return False
 		else:
 			print("Invalid input. Please enter 'yes' or 'no'.")
 
 
 def display_blocks(blocks):
+	"""
+	Displays a list of all blocks and their components.
+	If no blocks are available, shows a message.
+	"""
 	clear_console()
 
 	print("=" * 30)
@@ -103,7 +131,11 @@ def display_blocks(blocks):
 
 
 def search_block(blocks):
-	search_term = input("Enter the name of the block or a component to search: ").lower()
+	"""
+	Prompts the user to enter a search term and displays blocks 
+	whose names match the search term.
+	"""
+	search_term = input("Enter the name of the block or to search: ").lower()
 	found_blocks = []
 
 	for block in blocks:
@@ -118,6 +150,10 @@ def search_block(blocks):
 
 
 def add_block(blocks):
+	"""
+	Prompts the user to add a new block by entering its name and 
+	components. Validates input before adding the block to the list.
+	"""
 	available_components = [
 		"Steel Plates", "Motors", "Computers", "Display",
 		"Construction Components", "Large Steel Tube", "Small Steel Tube", "Power Cells",
@@ -176,6 +212,10 @@ def add_block(blocks):
 
 
 def delete_block(blocks):
+	"""
+	Prompts the user to delete a block by its name. Confirms 
+	before deleting the block from the list.
+	"""
 	block_name = input("Enter the exact name of the block to delete: ").strip()
 
 	if not block_name:
@@ -204,7 +244,33 @@ def delete_block(blocks):
 	return blocks
 
 
+def insertion_sort(blocks, ascending=True):
+	"""
+	Sorts the blocks alphabetically by their name using the
+	insertion sort algorithm. Can sort in ascending or descending order.
+	"""
+	for i in range(1, len(blocks)):
+		key = blocks[i]
+		j = i - 1
+		while (
+			j >= 0 
+			and (
+				(key['name'].lower() < blocks[j]['name'].lower() and ascending) 
+				or 
+				(key['name'].lower() > blocks[j]['name'].lower() and not ascending)
+			)
+		):
+			blocks[j + 1] = blocks[j]
+			j -= 1
+		blocks[j + 1] = key
+	return blocks
+
+
 def sort_blocks(blocks):
+	"""
+	Prompts the user to choose between sorting blocks in ascending
+	(A-Z) or descending (Z-A) order and then sorts the blocks accordingly.
+	"""
 	print("Choose sort order:")
 	print("1. Ascending (A-Z)")
 	print("2. Descending (Z-A)")
@@ -212,18 +278,22 @@ def sort_blocks(blocks):
 	choice = input("Enter your choice: ").strip()
 
 	if choice == "1":
-		sorted_blocks = sorted(blocks, key=lambda block: block['name'].lower())
+		blocks = insertion_sort(blocks, ascending=True)
 	elif choice == "2":
-		sorted_blocks = sorted(blocks, key=lambda block: block['name'].lower(), reverse=True)
+		blocks = insertion_sort(blocks, ascending=False)
 	else:
-		input("Press Enter to return to the menu...")
+		input("Invalid choice. Press Enter to return to the menu...")
 		return
 
-	display_blocks(sorted_blocks)
+	display_blocks(blocks)
 	input("Press Enter to return to the menu...")
 
 
-def initialize_blocks():
+def initialise_blocks():
+	"""
+	Initialises the blocks with predefined data. Returns a list 
+	of blocks with its name and a dictionary of components and quantities.
+	"""
 	blocks = [
 		{
 			"name": "Assembler",
@@ -279,11 +349,10 @@ def initialize_blocks():
 				"Display": 5,
 				"Interior Plates": 3
 			}
-		}
+		}		
 	]
-
 	return blocks
 
 
 if __name__ == '__main__':
-	main()
+	main()  # Run the main function to start the program
